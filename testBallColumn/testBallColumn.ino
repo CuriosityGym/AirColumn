@@ -19,6 +19,18 @@
 
  */
 
+//#include <TimerOne.h>
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
+
+#define PIN 2
+#define NUMPIXELS 144
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+
 // These constants won't change.  They're used to give names
 // to the pins used:
 const int analogInPin = A5;  // Analog input pin that the potentiometer is attached to
@@ -27,9 +39,32 @@ const int analogOutPin = 9; // Analog output pin that the LED is attached to
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 
+int randval1 = 0;
+int randval2 = 0;
+
+int count = 0;
+
+int range = 30; //The range of the LEDs in between which the ball has
+                // to be controlled.
+int minpix = 90;
+
+void  randnumgen() {
+ randval1 = random(70,minpix);
+ randval2 = random(minpix + range ,140); 
+}
+
+/*void swapnumber() {
+  temp = randval1;
+  randval1 = randval2;
+  randval2 = temp;
+}*/
+
 void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
+  //Timer1.initialize(150000);
+  //Timer1.attachInterrupt(randnumgen);
+  pixels.begin();
 }
 
 void loop() {
@@ -50,4 +85,13 @@ void loop() {
   // for the analog-to-digital converter to settle
   // after the last reading:
   delay(2);
+  /*if (randval1 > randval2){
+    swapnumber();
+    }*/
+  count++;
+  if(!count){
+    randnumgen();
+  }
+  pixels.setPixelColor(randval1, pixels.Color(0,255,0));
+  pixels.setPixelColor(randval2, pixels.Color(0,255,0));
 }
